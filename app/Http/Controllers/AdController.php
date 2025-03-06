@@ -110,4 +110,60 @@ class AdController extends Controller
             return response()->json(['error' => 'Erreur lors de la suppression de l’annonce', 'message' => $e->getMessage()], 500);
         }
     }
+
+    /**
+     * Filtrer les annonces par nom de catégorie.
+     */
+    public function filterByCategoryName(Request $request)
+    {
+        try {
+            // Valider le paramètre de requête "category_name"
+            $request->validate([
+                'category_name' => 'required|string|max:100',
+            ]);
+
+            // Récupérer le nom de la catégorie depuis la requête
+            $categoryName = $request->input('category_name');
+
+            // Filtrer les annonces par nom de catégorie
+            $ads = Ad::whereHas('category', function ($query) use ($categoryName) {
+                $query->where('nom', 'like', '%' . $categoryName . '%');
+            })->with('user', 'category', 'images')->get();
+
+            // Retourner les annonces filtrées
+            return response()->json(['data' => $ads], 200);
+        } catch (\Illuminate\Validation\ValidationException $e) {
+            return response()->json(['error' => 'Erreur de validation', 'message' => $e->errors()], 422);
+        } catch (\Exception $e) {
+            return response()->json(['error' => 'Erreur lors du filtrage des annonces', 'message' => $e->getMessage()], 500);
+        }
+    }
+
+    /**
+     * Filtrer les annonces par ville.
+     */
+    public function filterByCity(Request $request)
+    {
+        try {
+            // Valider le paramètre de requête "city"
+            $request->validate([
+                'city' => 'required|string|max:100',
+            ]);
+
+            // Récupérer le nom de la ville depuis la requête
+            $city = $request->input('city');
+
+            // Filtrer les annonces par ville
+            $ads = Ad::where('emplacement', 'like', '%' . $city . '%')
+                ->with('user', 'category', 'images')
+                ->get();
+
+            // Retourner les annonces filtrées
+            return response()->json(['data' => $ads], 200);
+        } catch (\Illuminate\Validation\ValidationException $e) {
+            return response()->json(['error' => 'Erreur de validation', 'message' => $e->errors()], 422);
+        } catch (\Exception $e) {
+            return response()->json(['error' => 'Erreur lors du filtrage des annonces', 'message' => $e->getMessage()], 500);
+        }
+    }
 }

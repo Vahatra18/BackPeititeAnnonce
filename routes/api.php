@@ -32,8 +32,20 @@ Route::post('/auth/google', [AuthController::class, 'handleGoogleAuth']);
 Route::post('/categories', [CategoryController::class, 'storecategory']);
 Route::post('/sousCategory', [CategoryController::class, 'createsouscategory']);
 Route::get('/affichageCategory', [CategoryController::class, 'affichagecategory']);
+Route::delete('/categories/{id_category}', [CategoryController::class, 'destroy']);
+Route::delete('/categories/{id_category}', [CategoryController::class, 'update']);
+Route::get('/categories/{id_category}', [CategoryController::class, 'show']);
+Route::get('/categorieParent', [CategoryController::class, 'afficherCategoriesParentes']);
+// Route pour afficher toutes les sous-catégories d'une catégorie parente
+Route::get('/categories/{idParent}/sous-categories', [CategoryController::class, 'afficherSousCategories']);
 
 
+Route::middleware('auth:api')->group(function () {
+    // Route pour filtrer les annonces par nom categorie
+    Route::get('/ads/filter-by-category', [AdController::class, 'filterByCategoryName']);
+    // Route pour filtrer les annonces par ville
+    Route::get('/ads/filter-by-city', [AdController::class, 'filterByCity']);
+});
 //Route for announcements
 Route::middleware('auth:api')->resource('ads', AdController::class)->except(['create', 'edit']);
 
